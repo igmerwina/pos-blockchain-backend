@@ -4,10 +4,12 @@
   "description": "Repo untuk kodingan tesis: Platform e-money berbasis Blockchain",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watchAll",
+    "test": "jest --runInBand --reporters=default",
+    "test:watch": "jest --watchAll",
     "dev-test": "nodemon dev-test",
-    "start": "node ./app",
-    "dev": "nodemon ./app"
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "run-all": "node scripts/run-all.js"
   },
   "jest": {
     "testEnvironment": "node",

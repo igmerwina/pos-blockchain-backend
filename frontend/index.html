@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain E-Money Experience</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link rel="stylesheet" href="/assets/styles.css">
+  </head>
+  <body>
+    <div id="app" class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">BC</div>
+          <div>
+            <h1>Blockchain E-Money</h1>
+            <p>Interactive thesis prototype</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn soft" :disabled="loading" @click="refresh">Refresh node</button>
+          <button class="btn primary" :disabled="loading" @click="runShowcase">Run showcase</button>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="hero">
+          <div class="hero-content">
+            <div class="eyebrow">Blockchain payment lab</div>
+            <h2>E-money flow yang terasa hidup.</h2>
+            <p class="hero-copy">User cukup klik aksi utama. Wallet, kartu, nominal, recipient, dan payload block dibuat otomatis sehingga demo fokus ke cerita blockchain: transaksi masuk pool, miner memvalidasi, lalu block tersambung ke chain.</p>
+
+            <div class="flow">
+              <button class="flow-step" style="color: var(--blue)" @click="regenerateTransaction">
+                <span>01 Generate</span>
+                <strong>Wallet tujuan dan kartu demo</strong>
+              </button>
+              <button class="flow-step" style="color: var(--green)" @click="createTransaction">
+                <span>02 Transact</span>
+                <strong>Push transaksi ke pool</strong>
+              </button>
+              <button class="flow-step" style="color: var(--amber)" @click="mineTransactions">
+                <span>03 Mine</span>
+                <strong>Validasi pending transaction</strong>
+              </button>
+              <button class="flow-step" style="color: var(--violet)" @click="mineBlock">
+                <span>04 Chain</span>
+                <strong>Tambah block demo otomatis</strong>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="sidebar">
+          <div class="metric" style="color: var(--blue)">
+            <span>Total block</span>
+            <strong>{{ blocks.length }}</strong>
+            <small>{{ latestBlock ? shortHash(latestBlock.hash) : 'Belum tersinkron' }}</small>
+          </div>
+          <div class="metric" style="color: var(--green)">
+            <span>Pending pool</span>
+            <strong>{{ transactions.length }}</strong>
+            <small>{{ transactions.length ? 'Siap dimining' : 'Pool bersih' }}</small>
+          </div>
+          <div class="metric" style="color: var(--amber)">
+            <span>Difficulty</span>
+            <strong>{{ latestBlock ? latestBlock.difficulty : '-' }}</strong>
+            <small>Proof-of-work terakhir</small>
+          </div>
+        </aside>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Node Wallet</h3>
+              <small>Identitas wallet node aktif, divisualkan seperti kartu digital.</small>
+            </div>
+            <span class="pill">live key</span>
+          </div>
+          <div class="wallet-card">
+            <div class="wallet-visual">
+              <div class="spark">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <strong>{{ shortHash(publicKey) || 'Memuat wallet...' }}</strong>
+            </div>
+            <div class="hash">{{ publicKey || 'Memuat public key...' }}</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Transfer Studio</h3>
+              <small>Tanpa form panjang. Pilih nominal atau biarkan sistem generate otomatis.</small>
+            </div>
+          </div>
+
+          <div class="transfer-card">
+            <div class="amount-stage">
+              <div>
+                <span>Nominal demo</span>
+                <strong>{{ transactionForm.amount }}</strong>
+              </div>
+            </div>
+
+            <div class="chip-row">
+              <button
+                v-for="amount in amountOptions"
+                :key="amount"
+                class="chip"
+                :class="{ active: transactionForm.amount === amount }"
+                type="button"
+                @click="transactionForm.amount = amount"
+              >{{ amount }}</button>
+            </div>
+
+            <div class="recipient-card">
+              <div class="avatar">RX</div>
+              <div>
+                <strong>Generated recipient</strong>
+                <div class="hash">{{ shortHash(transactionForm.recipient) }}</div>
+                <div class="hash">{{ transactionForm.id_kartu }}</div>
+              </div>
+              <button class="btn soft" type="button" :disabled="loading" @click="regenerateTransaction">Shuffle</button>
+            </div>
+
+            <div class="cluster">
+              <button class="btn primary" :disabled="loading" type="button" @click="createTransaction">Send to pool</button>
+              <button class="btn soft" :disabled="loading" type="button" @click="mineTransactions">Mine pending</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel wide">
+          <div v-if="message.text" class="status" :class="{ error: message.type === 'error' }">
+            <span>{{ message.type === 'error' ? '!' : '✓' }}</span>
+            {{ message.text }}
+          </div>
+
+          <div class="panel-header">
+            <div>
+              <h3>Transaction Pool</h3>
+              <small>Pending transaction ditampilkan sebagai kartu yang mudah dipindai.</small>
+            </div>
+            <span class="pill">{{ transactions.length }} pending</span>
+          </div>
+
+          <div v-if="!transactions.length" class="empty">Pool kosong. Klik “Send to pool” untuk membuat transaksi demo.</div>
+          <div v-else class="pool-grid">
+            <article v-for="transaction in transactions" :key="transaction.id" class="transaction-card">
+              <div class="transaction-head">
+                <strong>{{ shortHash(transaction.id) }}</strong>
+                <span class="pill">{{ formatTime(transaction.input && transaction.input.timestamp) }}</span>
+              </div>
+              <div v-for="(output, index) in transaction.outputs" :key="index" class="output-row">
+                <strong>{{ output.amount }}</strong>
+                <span class="hash">{{ output.address }}</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel wide">
+          <div class="panel-header">
+            <div>
+              <h3>Block Explorer Diagram</h3>
+              <small>Klik block pada rail untuk melihat hash, previous hash, nonce, dan payload.</small>
+            </div>
+            <div class="cluster">
+              <button class="btn soft" :disabled="loading" @click="mineBlock">Mine demo block</button>
+              <button class="btn primary" :disabled="loading" @click="runShowcase">Auto showcase</button>
+            </div>
+          </div>
+
+          <div class="chain-canvas">
+            <div v-if="!blocks.length" class="empty">Chain belum tersedia.</div>
+            <div v-else class="chain-rail">
+              <button
+                v-for="(block, index) in blocks"
+                :key="block.hash"
+                class="block-node"
+                :class="{ active: selectedBlock && selectedBlock.hash === block.hash }"
+                type="button"
+                @click="selectedBlockHash = block.hash"
+              >
+                <span class="node-dot"></span>
+                <strong>#{{ index }}</strong>
+                <div class="hash">{{ shortHash(block.hash) }}</div>
+                <div class="hash">nonce {{ block.nonce }}</div>
+              </button>
+            </div>
+
+            <div v-if="selectedBlock" class="block-detail">
+              <div class="detail-card">
+                <span>Hash</span>
+                <div class="hash">{{ selectedBlock.hash }}</div>
+              </div>
+              <div class="detail-card">
+                <span>Previous hash</span>
+                <div class="hash">{{ selectedBlock.lastHash }}</div>
+              </div>
+              <div class="detail-card">
+                <span>Proof</span>
+                <strong>Nonce {{ selectedBlock.nonce }} · Difficulty {{ selectedBlock.difficulty }}</strong>
+              </div>
+              <div class="detail-card">
+                <span>Payload</span>
+                <div class="hash">{{ prettyData(selectedBlock.data) }}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div class="dock">
+        <div class="dock-inner">
+          <button class="btn soft" :disabled="loading" @click="regenerateTransaction">Generate</button>
+          <button class="btn primary" :disabled="loading" @click="createTransaction">Send</button>
+          <button class="btn soft" :disabled="loading" @click="mineTransactions">Mine Tx</button>
+          <button class="btn soft" :disabled="loading" @click="mineBlock">Mine Block</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

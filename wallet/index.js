@@ -2,14 +2,15 @@ const ChainUtil = require('../chain-util')
 const { INITIAL_BALANCE } = require('../config')
 const Transaction = require('./transaction')
  
-class Wallet{
-    constructor(){
+class Wallet {
+    constructor() {
         this.balance = INITIAL_BALANCE
         this.keyPair = ChainUtil.genKeyPair()
         this.publicKey = this.keyPair.getPublic().encode('hex')
+        this.id_kartu = null
     }
 
-    toString(){
+    toString() {
         return `wallet - 
             publicKey: ${this.publicKey.toString()}    
             balance  : ${this.balance}    
@@ -17,36 +18,52 @@ class Wallet{
     }
 
     // buat signature dari transaksi 
-    sign(dataHash){
+    sign(dataHash) {
         return this.keyPair.sign(dataHash)
     }
 
-    createTransaction(recipient, amount, id_kartu, blockchain, transactionPool){
-        // calculate the balance 
-        this.balance = this.calculateBalance(blockchain)
+    createTransaction(recipient, amount, id_kartu, blockchain, transactionPool) {
+        const options = this.normalizeTransactionArgs(id_kartu, blockchain, transactionPool)
 
-        if (amount > this.balance){
+        this.id_kartu = options.id_kartu
+
+        // calculate the balance 
+        this.balance = this.calculateBalance(options.blockchain)
+
+        if (amount > this.balance) {
             console.log(`Amount: ${amount} exceed the current balance: ${this.balance}`)
             return
         }
 
         // check the transaction exist or not 
-        let transaction = transactionPool.existingTransaction(this.publicKey)
+        let transaction = options.transactionPool.existingTransaction(this.publicKey)
 
-        if (transaction){
+        if (transaction) {
             // update if exist
             transaction.update(this, recipient, amount)
         } else {
             // create new one if not exist
             transaction = Transaction.newTransaction(this, recipient, amount)
-            transactionPool.updateOrAddTransaction(transaction)
+            options.transactionPool.updateOrAddTransaction(transaction)
         }
 
         return transaction
     }
 
+    normalizeTransactionArgs(id_kartu, blockchain, transactionPool) {
+        if (id_kartu && id_kartu.chain) {
+            return {
+                id_kartu: null,
+                blockchain: id_kartu,
+                transactionPool: blockchain
+            }
+        }
+
+        return { id_kartu, blockchain, transactionPool }
+    }
+
     // function to calculate the final balance 
-    calculateBalance(blockchain){
+    calculateBalance(blockchain) {
         let balance = this.balance
         let transactions = []
 
