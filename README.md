@@ -4,6 +4,10 @@ Prototype platform e-money berbasis blockchain untuk kebutuhan tesis. Project in
 
 Codebase awal mengacu pada [sf-chain](https://github.com/15Dkatz/sf-chain) oleh David Katz, lalu dikembangkan untuk skenario e-money.
 
+## Tampilan Aplikasi
+
+![Blockchain E-Money Dashboard](./screenshot/ss.jpeg)
+
 ## Fitur
 
 - Blockchain sederhana dengan genesis block, mining, validasi chain, dan dynamic difficulty.
@@ -34,6 +38,8 @@ Codebase awal mengacu pada [sf-chain](https://github.com/15Dkatz/sf-chain) oleh 
 ├── blockchain/                # Block dan chain logic
 ├── wallet/                    # Wallet, transaction, transaction pool
 ├── card/                      # Eksperimen smart-card/APDU
+├── screenshot/
+│   └── ss.jpeg                # Screenshot aplikasi
 ├── scripts/
 │   └── run-all.js             # Runner multi-node
 ├── chain-util.js              # Hash, key pair, signature utility

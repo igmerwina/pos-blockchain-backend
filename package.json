@@ -1,6 +1,6 @@
 {
   "name": "blockchainjs-whitepaper",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Repo untuk kodingan tesis: Platform e-money berbasis Blockchain",
   "main": "index.js",
   "scripts": {
