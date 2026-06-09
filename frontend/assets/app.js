@@ -6,9 +6,17 @@ createApp({
       blocks: [],
       transactions: [],
       publicKey: '',
+      nodeInfo: null,
       loading: false,
+      realtime: true,
+      refreshTimer: null,
       selectedBlockHash: '',
       message: { type: '', text: '' },
+      simulation: {
+        nodes: 8,
+        txPerSecond: 100,
+        mineEveryMs: 10000
+      },
       amountOptions: [25, 50, 75, 100, 150, 200],
       transactionForm: {
         recipient: '',
@@ -28,6 +36,10 @@ createApp({
   mounted() {
     this.regenerateTransaction()
     this.refresh()
+    this.startRealtime()
+  },
+  beforeUnmount() {
+    this.stopRealtime()
   },
   methods: {
     async request(path, options) {
@@ -40,14 +52,16 @@ createApp({
     async refresh() {
       this.loading = true
       try {
-        const [blocks, transactions, key] = await Promise.all([
+        const [blocks, transactions, key, nodeInfo] = await Promise.all([
           this.request('/blocks'),
           this.request('/transactions'),
-          this.request('/public-key')
+          this.request('/public-key'),
+          this.request('/node-info')
         ])
         this.blocks = blocks
         this.transactions = transactions
         this.publicKey = key.publicKey
+        this.nodeInfo = nodeInfo
         if (!this.selectedBlockHash && blocks.length) {
           this.selectedBlockHash = blocks[blocks.length - 1].hash
         }
@@ -111,6 +125,44 @@ createApp({
       if (this.message.type !== 'error') {
         await this.mineTransactions()
       }
+    },
+    startRealtime() {
+      this.stopRealtime()
+      this.realtime = true
+      this.refreshTimer = setInterval(() => {
+        if (!this.loading) this.refresh()
+      }, 2000)
+    },
+    stopRealtime() {
+      if (this.refreshTimer) {
+        clearInterval(this.refreshTimer)
+        this.refreshTimer = null
+      }
+      this.realtime = false
+    },
+    toggleRealtime() {
+      if (this.realtime) {
+        this.stopRealtime()
+      } else {
+        this.startRealtime()
+      }
+    },
+    simulationCommand() {
+      const parts = [
+        `NODES=${this.simulation.nodes}`,
+        `TX_PER_SECOND=${this.simulation.txPerSecond}`
+      ]
+      if (Number(this.simulation.mineEveryMs) > 0) {
+        parts.push(`MINE_EVERY_MS=${this.simulation.mineEveryMs}`)
+      }
+      return `${parts.join(' ')} npm run simulate:nodes`
+    },
+    simulatedNodes() {
+      return Array.from({ length: Number(this.simulation.nodes) || 0 }, (_, index) => ({
+        name: `node-${index + 1}`,
+        http: 3001 + index,
+        p2p: 5001 + index
+      }))
     },
     regenerateTransaction() {
       this.transactionForm = {

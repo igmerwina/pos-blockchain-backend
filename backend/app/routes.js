@@ -47,6 +47,19 @@ function registerApiRoutes(app, context) {
   app.get('/public-key', (req, res) => {
     res.json({ publicKey: wallet.publicKey })
   })
+
+  app.get('/node-info', (req, res) => {
+    const httpPort = process.env.HTTP_PORT || '3001'
+    const p2pPort = process.env.P2P_PORT || '5001'
+    const peers = process.env.PEERS ? process.env.PEERS.split(',').filter(Boolean) : []
+
+    res.json({
+      name: process.env.name || process.env.NAME || `node-${httpPort}`,
+      httpPort,
+      p2pPort,
+      peers
+    })
+  })
 }
 
 module.exports = { registerApiRoutes }

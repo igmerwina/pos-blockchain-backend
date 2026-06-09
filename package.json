@@ -9,7 +9,8 @@
     "dev-test": "nodemon dev-test",
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
-    "run-all": "node scripts/run-all.js"
+    "run-all": "node scripts/run-all.js",
+    "simulate:nodes": "node scripts/simulate-nodes.js"
   },
   "jest": {
     "testEnvironment": "node",

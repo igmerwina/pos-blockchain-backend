@@ -18,6 +18,7 @@
           </div>
         </div>
         <div class="actions">
+          <button class="btn soft" :disabled="loading" @click="toggleRealtime">{{ realtime ? 'Pause realtime' : 'Resume realtime' }}</button>
           <button class="btn soft" :disabled="loading" @click="refresh">Refresh node</button>
           <button class="btn primary" :disabled="loading" @click="runShowcase">Run showcase</button>
         </div>
@@ -67,7 +68,52 @@
             <strong>{{ latestBlock ? latestBlock.difficulty : '-' }}</strong>
             <small>Proof-of-work terakhir</small>
           </div>
+          <div class="metric" style="color: var(--violet)">
+            <span>Node aktif</span>
+            <strong>{{ nodeInfo ? nodeInfo.httpPort : '-' }}</strong>
+            <small>{{ nodeInfo ? `P2P ${nodeInfo.p2pPort} · ${nodeInfo.peers.length} peer` : 'Memuat node' }}</small>
+          </div>
         </aside>
+
+        <section class="panel wide simulator-panel">
+          <div class="panel-header">
+            <div>
+              <h3>Simulasi Multi Node Realtime</h3>
+              <small>Tambah client localhost baru dan dorong transaksi sebanyak mungkin dari terminal.</small>
+            </div>
+            <span class="pill">{{ realtime ? 'auto refresh on' : 'auto refresh off' }}</span>
+          </div>
+
+          <div class="simulator-grid">
+            <div class="sim-control">
+              <label>
+                <span>Jumlah node</span>
+                <input v-model.number="simulation.nodes" min="1" max="30" type="number">
+              </label>
+              <label>
+                <span>Transaksi/detik</span>
+                <input v-model.number="simulation.txPerSecond" min="1" max="1000" type="number">
+              </label>
+              <label>
+                <span>Mine tiap ms</span>
+                <input v-model.number="simulation.mineEveryMs" min="0" step="1000" type="number">
+              </label>
+            </div>
+
+            <div class="command-card">
+              <span>Jalankan di terminal</span>
+              <code>{{ simulationCommand() }}</code>
+            </div>
+          </div>
+
+          <div class="node-strip">
+            <article v-for="node in simulatedNodes()" :key="node.name" class="mini-node">
+              <strong>{{ node.name }}</strong>
+              <span>HTTP {{ node.http }}</span>
+              <span>P2P {{ node.p2p }}</span>
+            </article>
+          </div>
+        </section>
 
         <section class="panel">
           <div class="panel-header">

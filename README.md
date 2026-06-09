@@ -102,6 +102,33 @@ http://localhost:3001
 
 Tekan `Ctrl+C` untuk menghentikan semua node.
 
+## Simulasi Tambah Node dan Transaksi Realtime
+
+Jalankan banyak node localhost sekaligus dan kirim transaksi terus-menerus:
+
+```bash
+npm run simulate:nodes
+```
+
+Konfigurasi opsional:
+
+```bash
+NODES=8 TX_PER_SECOND=100 npm run simulate:nodes
+```
+
+Jika ingin transaksi dimining otomatis berkala:
+
+```bash
+NODES=8 TX_PER_SECOND=100 MINE_EVERY_MS=10000 npm run simulate:nodes
+```
+
+Default port:
+
+```text
+HTTP 3001..300N
+P2P  5001..500N
+```
+
 ## Menjalankan Node Manual
 
 Contoh node pertama:
