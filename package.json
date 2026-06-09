@@ -32,8 +32,8 @@
   "author": "@igmerwina",
   "license": "ISC",
   "devDependencies": {
-    "jest": "^24.7.1",
-    "jest-html-reporter": "^2.5.0",
+    "jest": "^30.4.2",
+    "jest-html-reporter": "^4.4.0",
     "nodemon": "^1.18.11"
   },
   "dependencies": {
