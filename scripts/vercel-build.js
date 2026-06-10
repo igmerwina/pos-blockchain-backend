@@ -14,4 +14,10 @@ requiredFiles.forEach((file) => {
   }
 })
 
-console.log('Vercel static frontend is ready.')
+const sourceDir = path.join(__dirname, '..', 'frontend')
+const outputDir = path.join(__dirname, '..', 'public')
+
+fs.rmSync(outputDir, { recursive: true, force: true })
+fs.cpSync(sourceDir, outputDir, { recursive: true })
+
+console.log('Vercel static frontend is ready in public/.')

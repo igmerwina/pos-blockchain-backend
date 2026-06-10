@@ -1,7 +1,7 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "outputDirectory": "frontend",
+  "outputDirectory": "public",
   "rewrites": [
     { "source": "/blocks", "destination": "/api/index" },
     { "source": "/mine", "destination": "/api/index" },
