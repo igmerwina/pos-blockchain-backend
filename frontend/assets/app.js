@@ -103,7 +103,7 @@ createApp({
     },
     nextTourStep() {
       if (this.tourStepIndex >= this.tourSteps.length - 1) {
-        this.closeTour()
+        this.finishTour()
         return
       }
       this.tourStepIndex += 1
@@ -111,6 +111,10 @@ createApp({
     },
     closeTour() {
       this.showTour = false
+    },
+    finishTour() {
+      this.showTour = false
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }))
     },
     isTourTarget(refName) {
       return this.showTour && this.currentTourStep.ref === refName
