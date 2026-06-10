@@ -57,6 +57,9 @@ createApp({
     }
   },
   mounted() {
+    if (new URLSearchParams(window.location.search).get('view') === 'learn') {
+      this.activeView = 'learn'
+    }
     this.regenerateTransaction()
     this.message = { type: 'success', text: 'Mode manual aktif. Klik Refresh node untuk mengambil data backend.' }
   },

@@ -6,6 +6,8 @@ Codebase awal mengacu pada [sf-chain](https://github.com/15Dkatz/sf-chain) oleh 
 
 ## Tampilan Aplikasi
 
+Screenshot terbaru menampilkan halaman penjelasan blockchain interaktif untuk pengguna umum.
+
 ![Blockchain E-Money Dashboard](./screenshot/ss.jpeg)
 
 ## Fitur

@@ -325,7 +325,7 @@
         </section>
       </main>
 
-      <div class="dock">
+      <div v-if="activeView === 'demo'" class="dock">
         <div class="dock-inner">
           <button class="btn soft" @click="showLearn">Penjelasan</button>
           <button class="btn soft" :disabled="loading" @click="regenerateTransaction">Generate</button>
