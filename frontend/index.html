@@ -18,11 +18,80 @@
           </div>
         </div>
         <div class="actions">
+          <button class="btn soft" :class="{ active: activeView === 'learn' }" @click="showLearn">Penjelasan</button>
           <button class="btn soft" :disabled="loading" @click="refresh">Refresh node</button>
         </div>
       </header>
 
-      <main class="grid">
+      <main v-if="activeView === 'learn'" class="grid">
+        <section class="learn-hero panel wide">
+          <div>
+            <div class="eyebrow">Blockchain 101</div>
+            <h2>Blockchain itu buku catatan bersama yang sulit diubah diam-diam.</h2>
+            <p>Bayangkan banyak orang punya salinan buku kas yang sama. Setiap transaksi baru dicek bersama, dikunci dengan sidik jari digital, lalu disambung ke halaman sebelumnya. Karena semua salinan saling mengecek, data jadi transparan dan susah dimanipulasi.</p>
+          </div>
+          <div class="ledger-visual" aria-label="Ilustrasi blockchain">
+            <div v-for="(block, index) in learnBlocks" :key="block.title" class="ledger-block" :class="{ active: selectedLearnBlock === index }" @click="selectedLearnBlock = index">
+              <span>{{ block.step }}</span>
+              <strong>{{ block.title }}</strong>
+              <small>{{ block.caption }}</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Komponen Utama</h3>
+              <small>Klik kartu untuk melihat penjelasan sederhana.</small>
+            </div>
+          </div>
+          <div class="concept-grid">
+            <button v-for="concept in concepts" :key="concept.id" class="concept-card" :class="{ active: activeConcept === concept.id }" @click="activeConcept = concept.id">
+              <span>{{ concept.icon }}</span>
+              <strong>{{ concept.title }}</strong>
+            </button>
+          </div>
+          <div class="explain-box">
+            <strong>{{ selectedConcept.title }}</strong>
+            <p>{{ selectedConcept.body }}</p>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Kenapa Aman?</h3>
+              <small>Perubahan kecil akan mengubah hash dan memutus rantai.</small>
+            </div>
+          </div>
+          <div class="hash-demo">
+            <div class="hash-input">Transaksi: A kirim 100 ke B</div>
+            <div class="hash-arrow">menjadi hash</div>
+            <div class="hash-output">8f3a...21c9</div>
+            <div class="tamper-note">Jika nominal diganti, hash ikut berubah. Block berikutnya langsung tahu ada data yang tidak cocok.</div>
+          </div>
+        </section>
+
+        <section class="panel wide app-link-panel">
+          <div class="panel-header">
+            <div>
+              <h3>Kaitannya Dengan Web App Ini</h3>
+              <small>Demo ini memperlihatkan alur blockchain e-money dari transaksi sampai block.</small>
+            </div>
+            <button class="btn primary" @click="showDemo">Buka Demo App</button>
+          </div>
+          <div class="app-flow">
+            <button v-for="(item, index) in appFlow" :key="item.title" class="app-flow-step" :class="{ active: selectedAppFlow === index }" @click="selectedAppFlow = index">
+              <span>{{ index + 1 }}</span>
+              <strong>{{ item.title }}</strong>
+              <small>{{ item.body }}</small>
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <main v-else class="grid">
         <section class="hero">
           <div class="hero-content">
             <div class="eyebrow">Blockchain payment lab</div>
@@ -258,6 +327,7 @@
 
       <div class="dock">
         <div class="dock-inner">
+          <button class="btn soft" @click="showLearn">Penjelasan</button>
           <button class="btn soft" :disabled="loading" @click="regenerateTransaction">Generate</button>
           <button class="btn primary" :disabled="loading" @click="createTransaction">Send</button>
           <button class="btn soft" :disabled="loading" @click="mineTransactions">Mine Tx</button>

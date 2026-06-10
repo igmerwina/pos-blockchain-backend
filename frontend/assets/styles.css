@@ -124,6 +124,12 @@
         box-shadow: none;
       }
 
+      .btn.active,
+      .btn.soft.active {
+        background: var(--ink);
+        color: #ffffff;
+      }
+
       .grid {
         display: grid;
         grid-template-columns: repeat(12, 1fr);
@@ -293,6 +299,170 @@
       .simulator-panel {
         background:
           radial-gradient(circle at 90% 20%, rgba(124, 58, 237, 0.12), transparent 18rem),
+          var(--paper);
+      }
+
+      .learn-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+        gap: 26px;
+        align-items: center;
+        min-height: 520px;
+        background:
+          radial-gradient(circle at 85% 18%, rgba(6, 182, 212, 0.2), transparent 18rem),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(238, 247, 255, 0.82));
+      }
+
+      .learn-hero h2 {
+        max-width: 680px;
+        margin: 16px 0;
+        font-size: clamp(38px, 5vw, 66px);
+        line-height: 0.96;
+        letter-spacing: -0.04em;
+      }
+
+      .learn-hero p {
+        max-width: 650px;
+        color: #475467;
+        font-size: 18px;
+        line-height: 1.7;
+      }
+
+      .ledger-visual {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        position: relative;
+      }
+
+      .ledger-visual::before {
+        content: "";
+        position: absolute;
+        inset: 50% 12%;
+        height: 4px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--blue), var(--green), var(--amber));
+      }
+
+      .ledger-block,
+      .concept-card,
+      .app-flow-step {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.78);
+        color: var(--ink);
+        text-align: left;
+        transition: transform 160ms ease, box-shadow 160ms ease, border 160ms ease;
+      }
+
+      .ledger-block {
+        min-height: 172px;
+        padding: 18px;
+        border-radius: 24px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .ledger-block:hover,
+      .ledger-block.active,
+      .concept-card:hover,
+      .concept-card.active,
+      .app-flow-step:hover,
+      .app-flow-step.active {
+        transform: translateY(-4px);
+        border-color: rgba(37, 99, 235, 0.42);
+        box-shadow: 0 20px 46px rgba(37, 99, 235, 0.16);
+      }
+
+      .ledger-block span,
+      .concept-card span,
+      .app-flow-step span {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        margin-bottom: 14px;
+        border-radius: 14px;
+        color: #ffffff;
+        background: linear-gradient(135deg, var(--blue), var(--cyan));
+        font-weight: 950;
+      }
+
+      .ledger-block strong,
+      .concept-card strong,
+      .app-flow-step strong {
+        display: block;
+        font-size: 20px;
+        letter-spacing: -0.02em;
+      }
+
+      .concept-grid,
+      .app-flow {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .concept-card,
+      .app-flow-step {
+        min-height: 142px;
+        padding: 16px;
+        border-radius: 22px;
+      }
+
+      .explain-box,
+      .hash-demo {
+        margin-top: 16px;
+        padding: 18px;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: linear-gradient(145deg, #ffffff, #f4f8ff);
+      }
+
+      .explain-box p,
+      .hash-demo {
+        color: #475467;
+        line-height: 1.6;
+      }
+
+      .hash-demo {
+        display: grid;
+        gap: 12px;
+      }
+
+      .hash-input,
+      .hash-output {
+        padding: 16px;
+        border-radius: 18px;
+        background: #ffffff;
+        border: 1px solid var(--line);
+        color: var(--ink);
+        font-weight: 900;
+      }
+
+      .hash-arrow {
+        width: fit-content;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(18, 183, 106, 0.11);
+        color: #067647;
+        font-size: 12px;
+        font-weight: 950;
+        text-transform: uppercase;
+      }
+
+      .hash-output {
+        color: #ffffff;
+        background: linear-gradient(135deg, #111827, #1d4ed8);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      .tamper-note {
+        color: var(--muted);
+      }
+
+      .app-link-panel {
+        background:
+          radial-gradient(circle at 15% 15%, rgba(18, 183, 106, 0.16), transparent 18rem),
           var(--paper);
       }
 
@@ -722,6 +892,9 @@
 
         .flow,
         .block-detail,
+        .learn-hero,
+        .concept-grid,
+        .app-flow,
         .simulator-grid,
         .sim-control {
           grid-template-columns: 1fr;

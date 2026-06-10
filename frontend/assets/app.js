@@ -8,8 +8,30 @@ createApp({
       publicKey: '',
       nodeInfo: null,
       loading: false,
+      activeView: 'demo',
+      activeConcept: 'block',
+      selectedLearnBlock: 1,
+      selectedAppFlow: 0,
       selectedBlockHash: '',
       message: { type: 'success', text: 'Mode manual aktif. Klik Refresh node untuk mengambil data backend.' },
+      concepts: [
+        { id: 'block', icon: '01', title: 'Block', body: 'Block adalah halaman catatan. Isinya transaksi, waktu, hash sendiri, dan hash block sebelumnya.' },
+        { id: 'hash', icon: '02', title: 'Hash', body: 'Hash adalah sidik jari digital. Data yang sama menghasilkan hash yang sama, tapi perubahan kecil membuat hash berubah total.' },
+        { id: 'node', icon: '03', title: 'Node', body: 'Node adalah komputer peserta jaringan. Node menyimpan salinan chain dan mengecek apakah data baru valid.' },
+        { id: 'mine', icon: '04', title: 'Mining', body: 'Mining adalah proses memilih transaksi valid, mencari proof, lalu menambahkan block baru ke rantai.' }
+      ],
+      learnBlocks: [
+        { step: 'A', title: 'Transaksi', caption: 'User kirim e-money' },
+        { step: 'B', title: 'Block', caption: 'Transaksi dikumpulkan' },
+        { step: 'C', title: 'Hash', caption: 'Block dikunci digital' },
+        { step: 'D', title: 'Chain', caption: 'Tersambung permanen' }
+      ],
+      appFlow: [
+        { title: 'Generate', body: 'App membuat wallet tujuan, nomor kartu, dan nominal demo.' },
+        { title: 'Send to Pool', body: 'Transaksi masuk pending pool seperti antrean pembayaran.' },
+        { title: 'Mine Pending', body: 'Miner memvalidasi transaksi dan memasukkannya ke block.' },
+        { title: 'Explorer', body: 'User melihat hash, previous hash, nonce, dan payload block.' }
+      ],
       simulation: {
         nodes: 8,
         txPerSecond: 100,
@@ -29,6 +51,9 @@ createApp({
     },
     selectedBlock() {
       return this.blocks.find((block) => block.hash === this.selectedBlockHash) || this.latestBlock
+    },
+    selectedConcept() {
+      return this.concepts.find((concept) => concept.id === this.activeConcept) || this.concepts[0]
     }
   },
   mounted() {
@@ -42,6 +67,14 @@ createApp({
         throw new Error(`Request gagal: ${response.status}`)
       }
       return response.json()
+    },
+    showLearn() {
+      this.activeView = 'learn'
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }))
+    },
+    showDemo() {
+      this.activeView = 'demo'
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }))
     },
     async refresh() {
       this.loading = true
