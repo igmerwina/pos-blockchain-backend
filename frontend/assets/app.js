@@ -71,9 +71,6 @@ createApp({
       return this.tourSteps[this.tourStepIndex] || this.tourSteps[0]
     }
   },
-  updated() {
-    this.placeTourTooltip()
-  },
   mounted() {
     if (new URLSearchParams(window.location.search).get('view') === 'learn') {
       this.activeView = 'learn'
@@ -141,10 +138,17 @@ createApp({
         left = 16
         top = Math.min(window.innerHeight - 260, rect.bottom + 12)
       }
-      this.tourTooltipStyle = {
+      const nextStyle = {
         left: `${Math.max(16, Math.min(left, window.innerWidth - width - 16))}px`,
         top: `${Math.max(16, Math.min(top, window.innerHeight - 260))}px`,
         width: `${width}px`
+      }
+      if (
+        this.tourTooltipStyle.left !== nextStyle.left ||
+        this.tourTooltipStyle.top !== nextStyle.top ||
+        this.tourTooltipStyle.width !== nextStyle.width
+      ) {
+        this.tourTooltipStyle = nextStyle
       }
     },
     async refresh() {

@@ -44,6 +44,7 @@
         width: min(1220px, calc(100% - 32px));
         margin: 0 auto;
         padding: 24px 0 48px;
+        isolation: isolate;
       }
 
       .topbar {
@@ -885,7 +886,10 @@
 
       .tour-tooltip {
         position: fixed;
+        top: 24px;
+        left: 24px;
         z-index: 31;
+        width: min(360px, calc(100% - 32px));
         padding: 18px;
         border-radius: 24px;
         background:
@@ -893,15 +897,16 @@
           rgba(255, 255, 255, 0.94);
         border: 1px solid rgba(255, 255, 255, 0.86);
         box-shadow: 0 24px 70px rgba(16, 24, 40, 0.2);
-        backdrop-filter: blur(18px);
+        transform: translateY(0) scale(1);
+        transition: top 260ms ease, left 260ms ease, transform 260ms ease, opacity 180ms ease;
+        will-change: top, left, transform;
       }
 
       .tour-backdrop {
         position: fixed;
         inset: 0;
         z-index: 20;
-        background: rgba(16, 24, 40, 0.62);
-        backdrop-filter: blur(2px);
+        background: rgba(16, 24, 40, 0.58);
       }
 
       .tour-focus {
@@ -909,6 +914,7 @@
         z-index: 30;
         outline: 3px solid rgba(247, 144, 9, 0.9);
         box-shadow: 0 0 0 8px rgba(247, 144, 9, 0.18), var(--shadow);
+        transition: outline-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
       }
 
       .tour-count {
