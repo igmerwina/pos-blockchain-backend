@@ -1,7 +1,6 @@
 // berisi file untuk generate wallet key, unique hasesh etc
 
 const crypto = require('crypto')
-const SHA256 = require('crypto-js/sha256')
 
  
 class ChainUtil{
@@ -29,7 +28,10 @@ class ChainUtil{
     }
 
     static hash(data){
-        return SHA256(JSON.stringify(data)).toString()
+        return crypto
+            .createHash('sha256')
+            .update(JSON.stringify(data))
+            .digest('hex')
     }
 
     static verifySignature(publicKey, signature, dataHash){

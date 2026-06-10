@@ -1,10 +1,16 @@
-const { createNodeContext } = require('../backend/app/node-context')
+const Blockchain = require('../blockchain')
+const TransactionPool = require('../wallet/transaction-pool')
+const Wallet = require('../wallet')
 
 let context
 
 function getContext() {
   if (!context) {
-    context = createNodeContext()
+    context = {
+      blockchain: new Blockchain(),
+      transactionPool: new TransactionPool(),
+      wallet: new Wallet()
+    }
   }
 
   return context
@@ -41,7 +47,7 @@ function sendJson(res, statusCode, payload) {
 }
 
 module.exports = async (req, res) => {
-  const { blockchain, miner, transactionPool, wallet } = getContext()
+  const { blockchain, transactionPool, wallet } = getContext()
   const path = new URL(req.url, 'http://localhost').pathname
 
   if (req.method === 'OPTIONS') {
@@ -58,7 +64,9 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'GET' && path === '/mine-transactions') {
-      miner.mine()
+      const validTransactions = transactionPool.validTransactions()
+      blockchain.addBlock(validTransactions)
+      transactionPool.clear()
       return sendJson(res, 200, blockchain.chain)
     }
 
