@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "frontend",
+  "rewrites": [
+    { "source": "/blocks", "destination": "/api/index" },
+    { "source": "/mine", "destination": "/api/index" },
+    { "source": "/transactions", "destination": "/api/index" },
+    { "source": "/transac", "destination": "/api/index" },
+    { "source": "/mine-transactions", "destination": "/api/index" },
+    { "source": "/public-key", "destination": "/api/index" },
+    { "source": "/node-info", "destination": "/api/index" }
+  ]
+}
