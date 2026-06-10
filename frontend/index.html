@@ -92,7 +92,7 @@
       </main>
 
       <main v-else class="grid">
-        <section class="hero">
+        <section ref="tourHero" class="hero" :class="{ 'tour-focus': isTourTarget('tourHero') }">
           <div class="hero-content">
             <div class="eyebrow">Blockchain payment lab</div>
             <h2>E-money flow yang terasa hidup.</h2>
@@ -119,7 +119,7 @@
           </div>
         </section>
 
-        <aside class="sidebar">
+        <aside ref="tourStats" class="sidebar" :class="{ 'tour-focus': isTourTarget('tourStats') }">
           <div class="metric" style="color: var(--blue)">
             <span>Total block</span>
             <strong>{{ blocks.length }}</strong>
@@ -142,7 +142,7 @@
           </div>
         </aside>
 
-        <section class="panel wide simulator-panel">
+        <section ref="tourSim" class="panel wide simulator-panel" :class="{ 'tour-focus': isTourTarget('tourSim') }">
           <div class="panel-header">
             <div>
               <h3>Simulasi Multi Node Manual</h3>
@@ -182,7 +182,7 @@
           </div>
         </section>
 
-        <section class="panel">
+        <section ref="tourWallet" class="panel" :class="{ 'tour-focus': isTourTarget('tourWallet') }">
           <div class="panel-header">
             <div>
               <h3>Node Wallet</h3>
@@ -201,7 +201,7 @@
           </div>
         </section>
 
-        <section class="panel">
+        <section ref="tourTransfer" class="panel" :class="{ 'tour-focus': isTourTarget('tourTransfer') }">
           <div class="panel-header">
             <div>
               <h3>Transfer Studio</h3>
@@ -245,7 +245,7 @@
           </div>
         </section>
 
-        <section class="panel wide">
+        <section ref="tourPool" class="panel wide" :class="{ 'tour-focus': isTourTarget('tourPool') }">
           <div v-if="message.text" class="status" :class="{ error: message.type === 'error' }">
             <span>{{ message.type === 'error' ? '!' : '✓' }}</span>
             {{ message.text }}
@@ -274,7 +274,7 @@
           </div>
         </section>
 
-        <section class="panel wide">
+        <section ref="tourExplorer" class="panel wide" :class="{ 'tour-focus': isTourTarget('tourExplorer') }">
           <div class="panel-header">
             <div>
               <h3>Block Explorer Diagram</h3>
@@ -325,7 +325,8 @@
         </section>
       </main>
 
-      <div v-if="activeView === 'demo' && showTour" class="tour-tooltip">
+      <div v-if="activeView === 'demo' && showTour" class="tour-backdrop"></div>
+      <div v-if="activeView === 'demo' && showTour" class="tour-tooltip" :style="tourTooltipStyle">
         <div class="tour-count">{{ tourStepIndex + 1 }}/{{ tourSteps.length }}</div>
         <strong>{{ currentTourStep.title }}</strong>
         <p>{{ currentTourStep.body }}</p>

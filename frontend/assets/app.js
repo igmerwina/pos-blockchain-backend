@@ -12,6 +12,7 @@ createApp({
       activeConcept: 'block',
       showTour: true,
       tourStepIndex: 0,
+      tourTooltipStyle: {},
       selectedLearnBlock: 1,
       selectedAppFlow: 0,
       selectedBlockHash: '',
@@ -35,11 +36,13 @@ createApp({
         { title: 'Explorer', body: 'User melihat hash, previous hash, nonce, dan payload block.' }
       ],
       tourSteps: [
-        { title: 'Refresh node', body: 'Ambil data terbaru dari backend: block, pool transaksi, wallet, dan info node.' },
-        { title: 'Generate', body: 'Membuat data demo otomatis: wallet tujuan, nomor kartu, dan nominal.' },
-        { title: 'Send to pool', body: 'Mengirim transaksi ke antrean pending sebelum divalidasi miner.' },
-        { title: 'Mine pending', body: 'Memvalidasi transaksi pending lalu menyimpannya ke block baru.' },
-        { title: 'Block explorer', body: 'Melihat rantai block, hash, previous hash, nonce, dan payload.' }
+        { ref: 'tourHero', title: 'Alur utama', body: 'Empat tombol ini menunjukkan cerita demo: generate data, kirim transaksi, mining, lalu block masuk chain.' },
+        { ref: 'tourStats', title: 'Ringkasan node', body: 'Bagian ini menampilkan total block, pending pool, difficulty, dan node aktif secara cepat.' },
+        { ref: 'tourSim', title: 'Simulasi multi node', body: 'Gunakan konfigurasi ini untuk menjalankan banyak node lokal dan melihat skenario realtime.' },
+        { ref: 'tourWallet', title: 'Node wallet', body: 'Ini identitas wallet node aktif. Public key dipakai sebagai alamat transaksi.' },
+        { ref: 'tourTransfer', title: 'Transfer studio', body: 'Pilih nominal, generate penerima, lalu kirim transaksi demo ke pending pool.' },
+        { ref: 'tourPool', title: 'Transaction pool', body: 'Pool adalah antrean transaksi yang belum masuk block dan menunggu proses mining.' },
+        { ref: 'tourExplorer', title: 'Block explorer', body: 'Di sini user melihat rantai block, hash, previous hash, nonce, dan payload.' }
       ],
       simulation: {
         nodes: 8,
@@ -68,12 +71,20 @@ createApp({
       return this.tourSteps[this.tourStepIndex] || this.tourSteps[0]
     }
   },
+  updated() {
+    this.placeTourTooltip()
+  },
   mounted() {
     if (new URLSearchParams(window.location.search).get('view') === 'learn') {
       this.activeView = 'learn'
     }
     this.regenerateTransaction()
     this.message = { type: 'success', text: 'Mode manual aktif. Klik Refresh node untuk mengambil data backend.' }
+    window.addEventListener('resize', this.placeTourTooltip)
+    this.$nextTick(this.placeTourTooltip)
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.placeTourTooltip)
   },
   methods: {
     async request(path, options) {
@@ -91,7 +102,7 @@ createApp({
       this.activeView = 'demo'
       this.showTour = true
       this.tourStepIndex = 0
-      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }))
+      this.$nextTick(() => this.focusTourStep())
     },
     nextTourStep() {
       if (this.tourStepIndex >= this.tourSteps.length - 1) {
@@ -99,9 +110,42 @@ createApp({
         return
       }
       this.tourStepIndex += 1
+      this.$nextTick(() => this.focusTourStep())
     },
     closeTour() {
       this.showTour = false
+    },
+    isTourTarget(refName) {
+      return this.showTour && this.currentTourStep.ref === refName
+    },
+    focusTourStep() {
+      const target = this.$refs[this.currentTourStep.ref]
+      if (!target) return
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      setTimeout(this.placeTourTooltip, 260)
+    },
+    placeTourTooltip() {
+      if (!this.showTour || this.activeView !== 'demo') return
+      const target = this.$refs[this.currentTourStep.ref]
+      if (!target) return
+      const rect = target.getBoundingClientRect()
+      const width = Math.min(360, window.innerWidth - 32)
+      const leftSpace = rect.left
+      const rightSpace = window.innerWidth - rect.right
+      let left = rightSpace >= width + 24 ? rect.right + 16 : rect.left
+      let top = rect.top
+      if (leftSpace > rightSpace && leftSpace >= width + 24) {
+        left = rect.left - width - 16
+      }
+      if (window.innerWidth <= 720) {
+        left = 16
+        top = Math.min(window.innerHeight - 260, rect.bottom + 12)
+      }
+      this.tourTooltipStyle = {
+        left: `${Math.max(16, Math.min(left, window.innerWidth - width - 16))}px`,
+        top: `${Math.max(16, Math.min(top, window.innerHeight - 260))}px`,
+        width: `${width}px`
+      }
     },
     async refresh() {
       this.loading = true
@@ -122,6 +166,7 @@ createApp({
         this.message = { type: 'success', text: 'Node data tersinkron.' }
         this.showTour = true
         this.tourStepIndex = 0
+        this.$nextTick(() => this.focusTourStep())
       } catch (error) {
         this.message = { type: 'error', text: error.message }
       } finally {

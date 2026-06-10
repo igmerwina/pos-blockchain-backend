@@ -885,10 +885,7 @@
 
       .tour-tooltip {
         position: fixed;
-        right: 24px;
-        bottom: 92px;
-        z-index: 10;
-        width: min(360px, calc(100% - 32px));
+        z-index: 31;
         padding: 18px;
         border-radius: 24px;
         background:
@@ -897,6 +894,21 @@
         border: 1px solid rgba(255, 255, 255, 0.86);
         box-shadow: 0 24px 70px rgba(16, 24, 40, 0.2);
         backdrop-filter: blur(18px);
+      }
+
+      .tour-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        background: rgba(16, 24, 40, 0.62);
+        backdrop-filter: blur(2px);
+      }
+
+      .tour-focus {
+        position: relative;
+        z-index: 30;
+        outline: 3px solid rgba(247, 144, 9, 0.9);
+        box-shadow: 0 0 0 8px rgba(247, 144, 9, 0.18), var(--shadow);
       }
 
       .tour-count {
@@ -983,10 +995,8 @@
         }
 
         .tour-tooltip {
-          left: 10px;
-          right: 10px;
-          bottom: 14px;
-          width: auto;
+          max-height: calc(100vh - 28px);
+          overflow: auto;
         }
 
         .dock-inner {
