@@ -10,6 +10,8 @@ createApp({
       loading: false,
       activeView: 'demo',
       activeConcept: 'block',
+      showTour: true,
+      tourStepIndex: 0,
       selectedLearnBlock: 1,
       selectedAppFlow: 0,
       selectedBlockHash: '',
@@ -31,6 +33,13 @@ createApp({
         { title: 'Send to Pool', body: 'Transaksi masuk pending pool seperti antrean pembayaran.' },
         { title: 'Mine Pending', body: 'Miner memvalidasi transaksi dan memasukkannya ke block.' },
         { title: 'Explorer', body: 'User melihat hash, previous hash, nonce, dan payload block.' }
+      ],
+      tourSteps: [
+        { title: 'Refresh node', body: 'Ambil data terbaru dari backend: block, pool transaksi, wallet, dan info node.' },
+        { title: 'Generate', body: 'Membuat data demo otomatis: wallet tujuan, nomor kartu, dan nominal.' },
+        { title: 'Send to pool', body: 'Mengirim transaksi ke antrean pending sebelum divalidasi miner.' },
+        { title: 'Mine pending', body: 'Memvalidasi transaksi pending lalu menyimpannya ke block baru.' },
+        { title: 'Block explorer', body: 'Melihat rantai block, hash, previous hash, nonce, dan payload.' }
       ],
       simulation: {
         nodes: 8,
@@ -54,6 +63,9 @@ createApp({
     },
     selectedConcept() {
       return this.concepts.find((concept) => concept.id === this.activeConcept) || this.concepts[0]
+    },
+    currentTourStep() {
+      return this.tourSteps[this.tourStepIndex] || this.tourSteps[0]
     }
   },
   mounted() {
@@ -77,7 +89,19 @@ createApp({
     },
     showDemo() {
       this.activeView = 'demo'
+      this.showTour = true
+      this.tourStepIndex = 0
       requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }))
+    },
+    nextTourStep() {
+      if (this.tourStepIndex >= this.tourSteps.length - 1) {
+        this.closeTour()
+        return
+      }
+      this.tourStepIndex += 1
+    },
+    closeTour() {
+      this.showTour = false
     },
     async refresh() {
       this.loading = true
@@ -96,6 +120,8 @@ createApp({
           this.selectedBlockHash = blocks[blocks.length - 1].hash
         }
         this.message = { type: 'success', text: 'Node data tersinkron.' }
+        this.showTour = true
+        this.tourStepIndex = 0
       } catch (error) {
         this.message = { type: 'error', text: error.message }
       } finally {

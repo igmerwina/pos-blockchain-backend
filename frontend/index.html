@@ -325,6 +325,16 @@
         </section>
       </main>
 
+      <div v-if="activeView === 'demo' && showTour" class="tour-tooltip">
+        <div class="tour-count">{{ tourStepIndex + 1 }}/{{ tourSteps.length }}</div>
+        <strong>{{ currentTourStep.title }}</strong>
+        <p>{{ currentTourStep.body }}</p>
+        <div class="tour-actions">
+          <button class="btn soft" type="button" @click="closeTour">Tutup</button>
+          <button class="btn primary" type="button" @click="nextTourStep">{{ tourStepIndex === tourSteps.length - 1 ? 'Selesai' : 'Next' }}</button>
+        </div>
+      </div>
+
       <div v-if="activeView === 'demo'" class="dock">
         <div class="dock-inner">
           <button class="btn soft" @click="showLearn">Penjelasan</button>
