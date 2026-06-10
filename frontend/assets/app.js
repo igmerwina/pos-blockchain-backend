@@ -8,14 +8,12 @@ createApp({
       publicKey: '',
       nodeInfo: null,
       loading: false,
-      realtime: true,
-      refreshTimer: null,
       selectedBlockHash: '',
-      message: { type: '', text: '' },
+      message: { type: 'success', text: 'Mode manual aktif. Klik Refresh node untuk mengambil data backend.' },
       simulation: {
         nodes: 8,
         txPerSecond: 100,
-        mineEveryMs: 10000
+        mineEveryMs: 0
       },
       amountOptions: [25, 50, 75, 100, 150, 200],
       transactionForm: {
@@ -35,11 +33,7 @@ createApp({
   },
   mounted() {
     this.regenerateTransaction()
-    this.refresh()
-    this.startRealtime()
-  },
-  beforeUnmount() {
-    this.stopRealtime()
+    this.message = { type: 'success', text: 'Mode manual aktif. Klik Refresh node untuk mengambil data backend.' }
   },
   methods: {
     async request(path, options) {
@@ -118,33 +112,6 @@ createApp({
         this.message = { type: 'error', text: error.message }
       } finally {
         this.loading = false
-      }
-    },
-    async runShowcase() {
-      await this.createTransaction()
-      if (this.message.type !== 'error') {
-        await this.mineTransactions()
-      }
-    },
-    startRealtime() {
-      this.stopRealtime()
-      this.realtime = true
-      this.refreshTimer = setInterval(() => {
-        if (!this.loading) this.refresh()
-      }, 2000)
-    },
-    stopRealtime() {
-      if (this.refreshTimer) {
-        clearInterval(this.refreshTimer)
-        this.refreshTimer = null
-      }
-      this.realtime = false
-    },
-    toggleRealtime() {
-      if (this.realtime) {
-        this.stopRealtime()
-      } else {
-        this.startRealtime()
       }
     },
     simulationCommand() {
