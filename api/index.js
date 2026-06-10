@@ -1,19 +1,53 @@
-const Blockchain = require('../blockchain')
-const TransactionPool = require('../wallet/transaction-pool')
-const Wallet = require('../wallet')
+const crypto = require('crypto')
 
-let context
+let state
 
-function getContext() {
-  if (!context) {
-    context = {
-      blockchain: new Blockchain(),
-      transactionPool: new TransactionPool(),
-      wallet: new Wallet()
-    }
+function hash(data) {
+  return crypto
+    .createHash('sha256')
+    .update(JSON.stringify(data))
+    .digest('hex')
+}
+
+function createBlock(lastBlock, data) {
+  const timestamp = Date.now()
+  const lastHash = lastBlock ? lastBlock.hash : '----'
+  const difficulty = lastBlock ? lastBlock.difficulty : 3
+  const nonce = Math.floor(Math.random() * 1000000)
+  const blockHash = hash({ timestamp, lastHash, data, nonce, difficulty })
+
+  return {
+    timestamp,
+    lastHash,
+    hash: blockHash,
+    data,
+    nonce,
+    difficulty
+  }
+}
+
+function createState() {
+  const publicKey = crypto
+    .createHash('sha256')
+    .update(`vercel-wallet-${Date.now()}-${Math.random()}`)
+    .digest('hex')
+
+  const genesis = createBlock(null, [])
+
+  return {
+    publicKey,
+    balance: 100000,
+    chain: [genesis],
+    transactions: []
+  }
+}
+
+function getState() {
+  if (!state) {
+    state = createState()
   }
 
-  return context
+  return state
 }
 
 function readBody(req) {
@@ -46,8 +80,42 @@ function sendJson(res, statusCode, payload) {
   res.end(JSON.stringify(payload))
 }
 
+function addBlock(appState, data) {
+  const block = createBlock(appState.chain[appState.chain.length - 1], data)
+  appState.chain.push(block)
+  return block
+}
+
+function createTransaction(appState, recipient, amount, idKartu) {
+  const value = Number(amount)
+
+  if (!recipient || !Number.isFinite(value) || value <= 0 || value > appState.balance) {
+    return null
+  }
+
+  appState.balance -= value
+
+  const transaction = {
+    id: crypto.randomUUID(),
+    input: {
+      timestamp: Date.now(),
+      id_kartu: hash(idKartu || 'VERCEL-CARD'),
+      amount: appState.balance + value,
+      address: appState.publicKey,
+      signature: hash({ recipient, value, idKartu, timestamp: Date.now() })
+    },
+    outputs: [
+      { amount: appState.balance, address: appState.publicKey },
+      { amount: value, address: recipient }
+    ]
+  }
+
+  appState.transactions.push(transaction)
+  return transaction
+}
+
 module.exports = async (req, res) => {
-  const { blockchain, transactionPool, wallet } = getContext()
+  const appState = getState()
   const path = new URL(req.url, 'http://localhost').pathname
 
   if (req.method === 'OPTIONS') {
@@ -56,22 +124,21 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === 'GET' && path === '/blocks') {
-      return sendJson(res, 200, blockchain.chain)
+      return sendJson(res, 200, appState.chain)
     }
 
     if (req.method === 'GET' && path === '/transactions') {
-      return sendJson(res, 200, transactionPool.transactions)
+      return sendJson(res, 200, appState.transactions)
     }
 
     if (req.method === 'GET' && path === '/mine-transactions') {
-      const validTransactions = transactionPool.validTransactions()
-      blockchain.addBlock(validTransactions)
-      transactionPool.clear()
-      return sendJson(res, 200, blockchain.chain)
+      addBlock(appState, appState.transactions)
+      appState.transactions = []
+      return sendJson(res, 200, appState.chain)
     }
 
     if (req.method === 'GET' && path === '/public-key') {
-      return sendJson(res, 200, { publicKey: wallet.publicKey })
+      return sendJson(res, 200, { publicKey: appState.publicKey })
     }
 
     if (req.method === 'GET' && path === '/node-info') {
@@ -85,19 +152,13 @@ module.exports = async (req, res) => {
 
     if (req.method === 'POST' && path === '/mine') {
       const body = await readBody(req)
-      blockchain.addBlock(body.data)
-      return sendJson(res, 200, blockchain.chain)
+      addBlock(appState, body.data)
+      return sendJson(res, 200, appState.chain)
     }
 
     if (req.method === 'POST' && path === '/transac') {
       const { recipient, amount, id_kartu } = await readBody(req)
-      const transaction = wallet.createTransaction(
-        recipient,
-        amount,
-        id_kartu,
-        blockchain,
-        transactionPool
-      )
+      const transaction = createTransaction(appState, recipient, amount, id_kartu)
 
       if (!transaction) {
         return sendJson(res, 400, {
@@ -105,7 +166,7 @@ module.exports = async (req, res) => {
         })
       }
 
-      return sendJson(res, 200, transactionPool.transactions)
+      return sendJson(res, 200, appState.transactions)
     }
 
     return sendJson(res, 404, { error: 'Not found' })
