@@ -97,9 +97,7 @@ createApp({
     },
     showDemo() {
       this.activeView = 'demo'
-      this.showTour = true
-      this.tourStepIndex = 0
-      this.$nextTick(() => this.focusTourStep())
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }))
     },
     nextTourStep() {
       if (this.tourStepIndex >= this.tourSteps.length - 1) {
@@ -172,9 +170,6 @@ createApp({
           this.selectedBlockHash = blocks[blocks.length - 1].hash
         }
         this.message = { type: 'success', text: 'Node data tersinkron.' }
-        this.showTour = true
-        this.tourStepIndex = 0
-        this.$nextTick(() => this.focusTourStep())
       } catch (error) {
         this.message = { type: 'error', text: error.message }
       } finally {
