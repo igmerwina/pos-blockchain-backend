@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blockchain E-Money Experience</title>
+    <title>blockchain demo</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <link rel="stylesheet" href="/assets/styles.css">
   </head>
@@ -11,13 +11,16 @@
     <div id="app" class="app">
       <header class="topbar">
         <div class="brand">
-          <div class="brand-mark">BC</div>
+          <div class="brand-mark">BD</div>
           <div>
-            <h1>Blockchain E-Money</h1>
-            <p>Interactive thesis prototype</p>
+            <h1>blockchain demo</h1>
           </div>
         </div>
         <div class="actions">
+          <button class="btn soft icon-button" :class="{ active: activeView === 'demo' }" aria-label="Home" @click="showDemo">
+            <span class="home-icon" aria-hidden="true">⌂</span>
+            <span>Home</span>
+          </button>
           <button class="btn soft" :class="{ active: activeView === 'learn' }" @click="showLearn">Penjelasan</button>
           <button class="btn soft" :disabled="loading" @click="refresh">Refresh node</button>
         </div>
